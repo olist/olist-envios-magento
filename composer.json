@@ -1,0 +1,19 @@
+{
+    "name": "olist/module-envios",
+    "description": "Módulo oficial de fretes Envios da Olist para Magento 2",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1",
+        "magento/framework": ">=103.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Olist\\Envios\\": ""
+        }
+    }
+}

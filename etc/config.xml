@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <carriers>
+            <olist_envios>
+                <active>0</active>
+                <title>Envios da Olist</title>
+                <api_url>https://envios-api.olist.com</api_url>
+                <api_token></api_token>
+                <specificerrmsg>Erro ao calcular o frete. Tente novamente.</specificerrmsg>
+                <debug>0</debug>
+                <sallowspecific>0</sallowspecific>
+                <model>Olist\Envios\Model\Carrier\EnviosOlist</model>
+            </olist_envios>
+        </carriers>
+    </default>
+</config>
