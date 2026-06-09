@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="carriers">
+            <group id="olist_envios" translate="label" type="text" sortOrder="100"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Envios da Olist</label>
+
+                <field id="active" translate="label" type="select" sortOrder="1"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Habilitado</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="title" translate="label" type="text" sortOrder="2"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Título</label>
+                    <comment>Nome exibido para o comprador no checkout.</comment>
+                </field>
+
+                <field id="api_token" translate="label" type="obscure" sortOrder="3"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Token de integração</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>UUID do token de integração obtido no painel do Envios da Olist.</comment>
+                </field>
+
+                <field id="api_url" translate="label" type="text" sortOrder="4"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>URL da API</label>
+                    <comment>Padrão: https://envios-api.olist.com — altere apenas para ambiente de testes.</comment>
+                </field>
+
+                <field id="specificerrmsg" translate="label" type="textarea" sortOrder="5"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mensagem de erro</label>
+                    <comment>Exibida ao comprador quando o cálculo de frete falhar.</comment>
+                </field>
+
+                <field id="debug" translate="label" type="select" sortOrder="6"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Modo debug</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Registra requisições e respostas da API em var/log/system.log.</comment>
+                </field>
+
+                <field id="sallowspecific" translate="label" type="select" sortOrder="7"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enviar para países aplicáveis</label>
+                    <source_model>Magento\Shipping\Model\Config\Source\Allspecificcountries</source_model>
+                </field>
+
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="8"
+                       showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enviar para países específicos</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <can_be_empty>1</can_be_empty>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
