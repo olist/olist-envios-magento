@@ -1,0 +1,6 @@
+{
+    "name": "magento/framework",
+    "description": "Stub package — satisfies the magento/framework requirement for standalone unit tests",
+    "version": "103.0.0",
+    "type": "library"
+}
