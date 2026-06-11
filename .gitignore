@@ -1,2 +1,4 @@
 vendor/
 .phpunit.result.cache
+development/env/*.local.env
+development/composer-home/

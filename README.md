@@ -89,6 +89,44 @@ Ative o **Modo debug** nas configurações. As requisições e respostas da API 
 
 ---
 
+## Ambiente de desenvolvimento local
+
+O repositório inclui um ambiente Docker em `development/` com Magento, banco de dados e OpenSearch prontos para uso. O código-fonte do Magento fica armazenado em um volume interno do Docker — não é necessário baixá-lo manualmente.
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalados
+- Chaves de acesso do [Magento Marketplace](https://marketplace.magento.com) configuradas em `~/.composer/auth.json`:
+
+```json
+{
+    "http-basic": {
+        "repo.magento.com": {
+            "username": "SUA_CHAVE_PUBLICA",
+            "password": "SUA_CHAVE_PRIVADA"
+        }
+    }
+}
+```
+
+### Uso
+
+```bash
+make dev-up    # inicia os containers (na primeira vez, baixa e instala o Magento automaticamente)
+make dev-stop  # pausa os containers preservando o estado (reinício rápido com dev-up)
+make dev-down  # remove os containers e redes (dados nos volumes são preservados)
+make dev-shell # abre um terminal dentro do container
+make dev-logs  # acompanha o progresso da instalação automática
+```
+
+Use `dev-stop` / `dev-up` no dia a dia — é mais rápido pois os containers não precisam ser recriados. Use `dev-down` quando quiser liberar recursos ou após uma sessão mais longa.
+
+Na **primeira execução**, `make dev-up` dispara um container de inicialização que baixa o Magento 2.4.8, executa a instalação e habilita o módulo `Olist_Envios`. Isso pode levar alguns minutos. Nas execuções seguintes o ambiente sobe instantaneamente.
+
+Acesse em **http://localhost** e o painel admin em **http://localhost/admin** (usuário `admin` / senha `Admin1234!`).
+
+---
+
 ## Desinstalação
 
 ```bash
