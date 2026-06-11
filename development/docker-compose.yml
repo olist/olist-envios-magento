@@ -1,0 +1,68 @@
+services:
+  init:
+    image: shinsenter/magento:php8.3-nginx
+    entrypoint: ["/bin/bash", "/init.sh"]
+    volumes:
+      - magento_src:/var/www/html
+      - ${HOME}/.composer:/var/www/.composer:cached
+      - ./init.sh:/init.sh:ro
+      - ..:/tmp/olist-envios:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+
+  magento:
+    image: shinsenter/magento:php8.3-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      TZ: America/Sao_Paulo
+      COMPOSER_HOME: /var/www/.composer
+    volumes:
+      - magento_src:/var/www/html
+      - ./composer-home:/var/www/.composer:ro
+      - ..:/var/www/html/app/code/Olist/Envios:cached
+    depends_on:
+      init:
+        condition: service_completed_successfully
+
+  db:
+    image: mariadb:11.4
+    environment:
+      MYSQL_ROOT_PASSWORD: magento
+      MYSQL_DATABASE: magento
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  opensearch:
+    image: opensearchproject/opensearch:2
+    environment:
+      - discovery.type=single-node
+      - DISABLE_SECURITY_PLUGIN=true
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  magento_src:
+  db_data:
+  opensearch_data:
+
+networks:
+  default:
+    driver_opts:
+      com.docker.network.driver.mtu: "1250"
