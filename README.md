@@ -119,7 +119,28 @@ make dev-shell # abre um terminal dentro do container
 make dev-logs  # acompanha o progresso da instalação automática
 ```
 
-Use `dev-stop` / `dev-up` no dia a dia — é mais rápido pois os containers não precisam ser recriados. Use `dev-down` quando quiser liberar recursos ou após uma sessão mais longa.
+Use `dev-stop` / `dev-up` no dia a dia — é mais rápido pois os containers não precisam ser recriados. Use `dev-down` quando quiser liberar recursos ou após uma sessão mais longa. Se o arquivo `docker-compose.yml` for alterado, é necessário recriar os containers:
+
+```bash
+docker compose -f development/docker-compose.yml up -d --force-recreate magento
+```
+
+### Apontando para uma API local
+
+O container do Magento não consegue acessar `localhost` da máquina host diretamente. O `docker-compose.yml` já está configurado com `extra_hosts: host.docker.internal:host-gateway`, que mapeia automaticamente o hostname `host.docker.internal` para o IP da máquina host.
+
+Para apontar o módulo para uma API rodando localmente (ex.: `http://localhost:5000`), acesse o painel admin em **http://localhost/admin** e configure a **URL da API** como:
+
+```
+http://host.docker.internal:5000
+```
+
+Ou via CLI dentro do container:
+
+```bash
+bin/magento config:set carriers/olist_envios/api_url http://host.docker.internal:5000
+bin/magento cache:flush
+```
 
 Na **primeira execução**, `make dev-up` dispara um container de inicialização que baixa o Magento 2.4.8, executa a instalação e habilita o módulo `Olist_Envios`. Isso pode levar alguns minutos. Nas execuções seguintes o ambiente sobe instantaneamente.
 
