@@ -119,30 +119,63 @@ class EnviosOlistTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
-    // collectRates — postcode validation
+    // collectRates — invalid postcodes are still forwarded to the API
     // -------------------------------------------------------------------------
 
-    public function testReturnsErrorWhenPostcodeIsNull(): void
+    public function testForwardsRequestToApiWhenPostcodeIsNull(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
+        $this->stubWeightUnit();
         $request = $this->createMock(RateRequest::class);
         $request->method('getDestPostcode')->willReturn(null);
+
+        $this->apiClient->expects($this->once())
+            ->method('fetchRates')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->callback(fn($p) => $p['destination'] === ''),
+                $this->anything()
+            )
+            ->willReturn(null);
 
         $this->assertSame($this->result, $carrier->collectRates($request));
     }
 
-    public function testReturnsErrorWhenPostcodeIsEmpty(): void
+    public function testForwardsRequestToApiWhenPostcodeIsEmpty(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
+        $this->stubWeightUnit();
+
+        $this->apiClient->expects($this->once())
+            ->method('fetchRates')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->callback(fn($p) => $p['destination'] === ''),
+                $this->anything()
+            )
+            ->willReturn(null);
 
         $this->assertSame($this->result, $carrier->collectRates($this->makeRequest('')));
     }
 
-    public function testReturnsErrorWhenPostcodeIsTooShort(): void
+    public function testForwardsRequestToApiWhenPostcodeIsTooShort(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
+        $this->stubWeightUnit();
 
-        // 7 digits — one short of the required 8
+        // 7 digits — one short of the previously-required 8, still sent as-is
+        $this->apiClient->expects($this->once())
+            ->method('fetchRates')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->callback(fn($p) => $p['destination'] === '0131010'),
+                $this->anything()
+            )
+            ->willReturn(null);
+
         $this->assertSame($this->result, $carrier->collectRates($this->makeRequest('0131010')));
     }
 
