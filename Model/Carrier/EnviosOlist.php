@@ -20,6 +20,7 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
     protected $_code = 'olist_envios';
 
     private const LBS_TO_KG = 0.453592;
+    private const DEFAULT_DIMENSION_CM = 10.0;
 
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -98,11 +99,9 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
     /**
      * Maps cart items to the API `items` array.
      *
-     * Dimensions are intentionally sent as 0.0: height/length/width aren't core
-     * Magento product attributes, and the API calculates them server-side from
-     * total weight, falling back to a 10x15x20cm default. Sending the items
-     * still gives the API accurate SKU, price, and quantity data for future
-     * per-SKU logic.
+     * Dimensions are sent as DEFAULT_DIMENSION_CM: height/length/width aren't
+     * core Magento product attributes, and there's no reliable way to know
+     * what unit an arbitrary custom attribute would be stored in.
      *
      * Child items of configurable/grouped products are skipped to avoid
      * double-counting — Magento adds both the parent and its simple child.
@@ -120,9 +119,9 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
                 'reference'  => (string) $item->getSku(),
                 'unit_price' => (float)  $item->getPrice(),
                 'quantity'   => (int)    $item->getQty(),
-                'height'     => 0.0,
-                'length'     => 0.0,
-                'width'      => 0.0,
+                'height'     => self::DEFAULT_DIMENSION_CM,
+                'length'     => self::DEFAULT_DIMENSION_CM,
+                'width'      => self::DEFAULT_DIMENSION_CM,
                 'weight'     => $this->normalizeWeightToKg((float) $item->getWeight()),
             ];
         }

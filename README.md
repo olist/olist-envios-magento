@@ -59,9 +59,7 @@ php bin/magento cache:flush
 
 ## Dimensões de produtos
 
-Na versão atual, as dimensões individuais dos produtos (altura, largura, comprimento) são determinadas pelo servidor com base no peso total do carrinho. Não é necessário configurar medidas nos produtos da loja.
-
-Caso a API não consiga calcular o frete a partir dos dados do pedido, são aplicados valores padrão de **10 × 15 × 20 cm** automaticamente.
+Altura, largura e comprimento não são atributos nativos do Magento, então o módulo envia o valor padrão de **10 cm** para cada dimensão de item. Não é necessário configurar medidas nos produtos da loja.
 
 ---
 

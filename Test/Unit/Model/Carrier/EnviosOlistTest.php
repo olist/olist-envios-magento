@@ -460,6 +460,35 @@ class EnviosOlistTest extends TestCase
     }
 
     // -------------------------------------------------------------------------
+    // Item dimensions
+    // -------------------------------------------------------------------------
+
+    public function testItemDimensionsAlwaysUseDefault(): void
+    {
+        $carrier = $this->makeCarrier($this->activeConfig());
+        $this->stubWeightUnit();
+        $request = $this->createMock(RateRequest::class);
+        $request->method('getDestPostcode')->willReturn('01310100');
+        $request->method('getPackageValueWithDiscount')->willReturn(100.0);
+        $request->method('getAllItems')->willReturn([$this->makeItem()]);
+
+        $this->apiClient->expects($this->once())
+            ->method('fetchRates')
+            ->with(
+                $this->anything(),
+                $this->anything(),
+                $this->callback(function (array $p): bool {
+                    $item = $p['items'][0];
+                    return $item['height'] === 10.0 && $item['width'] === 10.0 && $item['length'] === 10.0;
+                }),
+                $this->anything()
+            )
+            ->willReturn(null);
+
+        $carrier->collectRates($request);
+    }
+
+    // -------------------------------------------------------------------------
     // Payload structure
     // -------------------------------------------------------------------------
 
