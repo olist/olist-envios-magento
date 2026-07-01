@@ -1,3 +1,5 @@
+name: olist-envios-magento
+
 services:
   init:
     image: shinsenter/magento:php8.3-nginx
