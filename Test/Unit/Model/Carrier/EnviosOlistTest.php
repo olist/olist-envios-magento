@@ -9,6 +9,7 @@ use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
 use Magento\Quote\Model\Quote\Address\RateResult\Method;
 use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
+use Magento\Quote\Model\Quote\Item;
 use Magento\Shipping\Model\Rate\Result;
 use Magento\Shipping\Model\Rate\ResultFactory;
 use Magento\Store\Model\ScopeInterface;
@@ -74,18 +75,28 @@ class EnviosOlistTest extends TestCase
 
     private function makeRequest(
         string $postcode = '01310100',
-        float  $weight   = 1.0,
         float  $value    = 100.0,
     ): MockObject&RateRequest {
         $request = $this->createMock(RateRequest::class);
         $request->method('getDestPostcode')->willReturn($postcode);
         $request->method('getAllItems')->willReturn([]);
-        $request->method('getPackageWeight')->willReturn($weight);
-        $request->method('getPackageHeight')->willReturn(0.0);
-        $request->method('getPackageWidth')->willReturn(0.0);
-        $request->method('getPackageDepth')->willReturn(0.0);
-        $request->method('getPackageValue')->willReturn($value);
+        $request->method('getPackageValueWithDiscount')->willReturn($value);
         return $request;
+    }
+
+    private function makeItem(
+        string $sku    = 'SKU-1',
+        float  $price  = 10.0,
+        float  $qty    = 1.0,
+        float  $weight = 1.0,
+    ): MockObject&Item {
+        $item = $this->createMock(Item::class);
+        $item->method('getParentItemId')->willReturn(null);
+        $item->method('getSku')->willReturn($sku);
+        $item->method('getPrice')->willReturn($price);
+        $item->method('getQty')->willReturn($qty);
+        $item->method('getWeight')->willReturn($weight);
+        return $item;
     }
 
     private function stubWeightUnit(string $unit = 'kgs'): void
@@ -380,28 +391,36 @@ class EnviosOlistTest extends TestCase
     // Weight conversion
     // -------------------------------------------------------------------------
 
-    public function testPackageWeightIsKeptAsIsWhenUnitIsKgs(): void
+    public function testItemWeightIsKeptAsIsWhenUnitIsKgs(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
         $this->stubWeightUnit('kgs');
+        $request = $this->createMock(RateRequest::class);
+        $request->method('getDestPostcode')->willReturn('01310100');
+        $request->method('getPackageValueWithDiscount')->willReturn(100.0);
+        $request->method('getAllItems')->willReturn([$this->makeItem(weight: 2.5)]);
 
         $this->apiClient->expects($this->once())
             ->method('fetchRates')
             ->with(
                 $this->anything(),
                 $this->anything(),
-                $this->callback(fn($p) => $p['package']['weight'] === 2.5),
+                $this->callback(fn($p) => $p['items'][0]['weight'] === 2.5),
                 $this->anything()
             )
             ->willReturn(null);
 
-        $carrier->collectRates($this->makeRequest('01310100', 2.5));
+        $carrier->collectRates($request);
     }
 
-    public function testPackageWeightIsConvertedFromLbsToKg(): void
+    public function testItemWeightIsConvertedFromLbsToKg(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
         $this->stubWeightUnit('lbs');
+        $request = $this->createMock(RateRequest::class);
+        $request->method('getDestPostcode')->willReturn('01310100');
+        $request->method('getPackageValueWithDiscount')->willReturn(100.0);
+        $request->method('getAllItems')->willReturn([$this->makeItem(weight: 2.0)]);
 
         $expectedKg = round(2.0 * 0.453592, 4);
 
@@ -410,37 +429,41 @@ class EnviosOlistTest extends TestCase
             ->with(
                 $this->anything(),
                 $this->anything(),
-                $this->callback(fn($p) => $p['package']['weight'] === $expectedKg),
+                $this->callback(fn($p) => $p['items'][0]['weight'] === $expectedKg),
                 $this->anything()
             )
             ->willReturn(null);
 
-        $carrier->collectRates($this->makeRequest('01310100', 2.0));
+        $carrier->collectRates($request);
     }
 
     public function testZeroWeightIsPassedThroughWithoutConversion(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
         $this->stubWeightUnit('lbs');
+        $request = $this->createMock(RateRequest::class);
+        $request->method('getDestPostcode')->willReturn('01310100');
+        $request->method('getPackageValueWithDiscount')->willReturn(100.0);
+        $request->method('getAllItems')->willReturn([$this->makeItem(weight: 0.0)]);
 
         $this->apiClient->expects($this->once())
             ->method('fetchRates')
             ->with(
                 $this->anything(),
                 $this->anything(),
-                $this->callback(fn($p) => $p['package']['weight'] === 0.0),
+                $this->callback(fn($p) => $p['items'][0]['weight'] === 0.0),
                 $this->anything()
             )
             ->willReturn(null);
 
-        $carrier->collectRates($this->makeRequest('01310100', 0.0));
+        $carrier->collectRates($request);
     }
 
     // -------------------------------------------------------------------------
     // Payload structure
     // -------------------------------------------------------------------------
 
-    public function testPayloadContainsDestinationPackageAndItems(): void
+    public function testPayloadContainsDestinationItemsAndDeclaredValue(): void
     {
         $carrier = $this->makeCarrier($this->activeConfig());
         $this->stubWeightUnit();
@@ -451,15 +474,15 @@ class EnviosOlistTest extends TestCase
                 $this->anything(),
                 $this->anything(),
                 $this->callback(function (array $p): bool {
-                    return isset($p['destination'], $p['package'], $p['items'])
+                    return isset($p['destination'], $p['items'], $p['declared_value'])
                         && $p['destination'] === '01310100'
-                        && $p['package']['declared_value'] === 200.0;
+                        && $p['declared_value'] === 200.0;
                 }),
                 $this->anything()
             )
             ->willReturn(null);
 
-        $carrier->collectRates($this->makeRequest('01310100', 1.0, 200.0));
+        $carrier->collectRates($this->makeRequest('01310100', 200.0));
     }
 
     public function testApiIsCalledWithConfiguredUrlAndToken(): void

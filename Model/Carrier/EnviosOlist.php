@@ -46,7 +46,7 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
         try {
             $postcode = $this->extractPostcode($request);
             $payload  = $this->buildPayload($postcode, $request);
-            $data    = $this->apiClient->fetchRates(
+            $data     = $this->apiClient->fetchRates(
                 (string) $this->getConfigData('api_url'),
                 (string) $this->getConfigData('api_token'),
                 $payload,
@@ -87,20 +87,22 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
     private function buildPayload(string $postcode, RateRequest $request): array
     {
         return [
-            'destination' => $postcode,
-            'items'       => $this->buildItems($request),
-            'package'     => $this->buildPackage($request),
+            'destination'    => $postcode,
+            'items'          => $this->buildItems($request),
+            // Net of discounts: a discounted cart is worth less than the sum
+            // of its undiscounted unit prices.
+            'declared_value' => (float) $request->getPackageValueWithDiscount(),
         ];
     }
 
     /**
      * Maps cart items to the API `items` array.
      *
-     * Dimensions are intentionally sent as 0.0: Magento stores rarely configure
-     * product height/length/width, and the API handles zero dimensions server-side
-     * by falling back to the pre-aggregated `package` block. Sending the items
-     * still gives the API accurate SKU, price, and quantity data for declared value
-     * calculation and future per-SKU logic.
+     * Dimensions are intentionally sent as 0.0: height/length/width aren't core
+     * Magento product attributes, and the API calculates them server-side from
+     * total weight, falling back to a 10x15x20cm default. Sending the items
+     * still gives the API accurate SKU, price, and quantity data for future
+     * per-SKU logic.
      *
      * Child items of configurable/grouped products are skipped to avoid
      * double-counting — Magento adds both the parent and its simple child.
@@ -126,21 +128,6 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
         }
 
         return $items;
-    }
-
-    /**
-     * Builds the `package` fallback block from Magento's pre-aggregated RateRequest
-     * data. Magento calculates these totals automatically from all cart items.
-     */
-    private function buildPackage(RateRequest $request): array
-    {
-        return [
-            'weight'         => $this->normalizeWeightToKg((float) $request->getPackageWeight()),
-            'height'         => (float) $request->getPackageHeight(),
-            'width'          => (float) $request->getPackageWidth(),
-            'length'         => (float) $request->getPackageDepth(),
-            'declared_value' => (float) $request->getPackageValue(),
-        ];
     }
 
     /**
