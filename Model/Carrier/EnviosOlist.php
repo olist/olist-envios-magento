@@ -45,11 +45,7 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
 
         try {
             $postcode = $this->extractPostcode($request);
-            if ($postcode === null) {
-                return $this->errorResult();
-            }
-
-            $payload = $this->buildPayload($postcode, $request);
+            $payload  = $this->buildPayload($postcode, $request);
             $data    = $this->apiClient->fetchRates(
                 (string) $this->getConfigData('api_url'),
                 (string) $this->getConfigData('api_token'),
@@ -79,13 +75,13 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
     // -------------------------------------------------------------------------
 
     /**
-     * Strips non-digits from the destination postcode and validates the length.
-     * Works for both the cart estimate (CEP only) and full checkout flows.
+     * Strips non-digits from the destination postcode. No length validation:
+     * requests are always forwarded to the API, even with malformed postcodes,
+     * so invalid data is visible in the API logs instead of silently dropped here.
      */
-    private function extractPostcode(RateRequest $request): ?string
+    private function extractPostcode(RateRequest $request): string
     {
-        $clean = preg_replace('/\D/', '', (string) $request->getDestPostcode());
-        return strlen($clean) >= 8 ? $clean : null;
+        return preg_replace('/\D/', '', (string) $request->getDestPostcode());
     }
 
     private function buildPayload(string $postcode, RateRequest $request): array
