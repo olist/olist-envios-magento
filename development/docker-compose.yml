@@ -8,9 +8,12 @@ services:
       - magento_src:/var/www/html
       - ${HOME}/.composer:/var/www/.composer:cached
       - ./init.sh:/init.sh:ro
+      - ../Block:/var/www/html/app/code/Olist/Envios/Block:ro
+      - ../Controller:/var/www/html/app/code/Olist/Envios/Controller:ro
       - ../Model:/var/www/html/app/code/Olist/Envios/Model:ro
       - ../etc:/var/www/html/app/code/Olist/Envios/etc:ro
       - ../registration.php:/var/www/html/app/code/Olist/Envios/registration.php:ro
+      - ../view:/var/www/html/app/code/Olist/Envios/view:ro
     depends_on:
       db:
         condition: service_healthy
@@ -30,9 +33,12 @@ services:
     volumes:
       - magento_src:/var/www/html
       - ./composer-home:/var/www/.composer:ro
+      - ../Block:/var/www/html/app/code/Olist/Envios/Block:cached
+      - ../Controller:/var/www/html/app/code/Olist/Envios/Controller:cached
       - ../Model:/var/www/html/app/code/Olist/Envios/Model:cached
       - ../etc:/var/www/html/app/code/Olist/Envios/etc:cached
       - ../registration.php:/var/www/html/app/code/Olist/Envios/registration.php:cached
+      - ../view:/var/www/html/app/code/Olist/Envios/view:cached
     depends_on:
       init:
         condition: service_completed_successfully

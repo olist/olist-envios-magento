@@ -12,6 +12,7 @@
                 <debug>0</debug>
                 <sallowspecific>0</sallowspecific>
                 <model>Olist\Envios\Model\Carrier\EnviosOlist</model>
+                <show_on_product_page>0</show_on_product_page>
             </olist_envios>
         </carriers>
     </default>
