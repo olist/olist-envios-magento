@@ -25,10 +25,6 @@ if [ ! -f "$MAGENTO_ROOT/bin/magento" ]; then
 fi
 
 if ! grep -q 'install_date' "$MAGENTO_ROOT/app/etc/env.php" 2>/dev/null; then
-    echo "[init] Copying Olist_Envios module..."
-    mkdir -p "$MAGENTO_ROOT/app/code/Olist/Envios"
-    find /tmp/olist-envios -mindepth 1 -maxdepth 1 ! -name '.git' -exec cp -r {} "$MAGENTO_ROOT/app/code/Olist/Envios/" \;
-
     echo "[init] Installing Magento..."
     php -d memory_limit=-1 "$MAGENTO_ROOT/bin/magento" setup:install \
         --base-url=http://localhost \
