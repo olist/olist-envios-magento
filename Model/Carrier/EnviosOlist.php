@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Olist\Envios\Model\Carrier;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
 use Magento\Quote\Model\Quote\Address\RateResult\MethodFactory;
@@ -26,9 +27,10 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
         ScopeConfigInterface $scopeConfig,
         ErrorFactory         $rateErrorFactory,
         LoggerInterface      $logger,
-        private readonly ResultFactory $rateResultFactory,
-        private readonly MethodFactory $rateMethodFactory,
-        private readonly Client        $apiClient,
+        private readonly ResultFactory    $rateResultFactory,
+        private readonly MethodFactory    $rateMethodFactory,
+        private readonly Client           $apiClient,
+        private readonly EncryptorInterface $encryptor,
         array $data = []
     ) {
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
@@ -49,7 +51,7 @@ class EnviosOlist extends AbstractCarrier implements CarrierInterface
             $payload  = $this->buildPayload($postcode, $request);
             $data     = $this->apiClient->fetchRates(
                 (string) $this->getConfigData('api_url'),
-                (string) $this->getConfigData('api_token'),
+                $this->encryptor->decrypt((string) $this->getConfigData('api_token')),
                 $payload,
                 (bool) $this->getConfigFlag('debug')
             );
