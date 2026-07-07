@@ -1,0 +1,80 @@
+<?php
+/** @var \Olist\Envios\Block\Product\View $block */
+$product = $block->getCurrentProduct();
+if (!$product) {
+    return;
+}
+?>
+<div class="olist-envios-simulator" id="olist-envios-simulator">
+    <p class="olist-envios-simulator__title">
+        <?= $block->escapeHtml(__('Calcular frete')) ?>
+    </p>
+
+    <div class="olist-envios-simulator__input-row">
+        <input type="text"
+               id="olist-envios-postcode"
+               name="postcode"
+               placeholder="00000-000"
+               maxlength="9"
+               autocomplete="postal-code"
+               class="input-text olist-envios-simulator__input" />
+        <button type="button"
+                id="olist-envios-btn"
+                class="action primary olist-envios-simulator__btn"
+                style="margin-top: 1rem;">
+            <?= $block->escapeHtml(__('Calcular')) ?>
+        </button>
+    </div>
+
+    <div id="olist-envios-result"></div>
+</div>
+
+<script>
+require(['jquery'], function ($) {
+    'use strict';
+
+    var ajaxUrl  = '<?= $block->escapeJs($block->getAjaxShippingUrl()) ?>';
+    var msgEmpty = '<?= $block->escapeJs(__('Nenhuma opção de frete disponível para este CEP.')) ?>';
+    var msgError = '<?= $block->escapeJs(__('Erro ao calcular o frete. Tente novamente.')) ?>';
+    var msgInvalid = '<?= $block->escapeJs(__('Informe um CEP válido com 8 dígitos.')) ?>';
+    var lblCalcular    = '<?= $block->escapeJs(__('Calcular')) ?>';
+    var lblCalculando  = '<?= $block->escapeJs(__('Calculando...')) ?>';
+
+    $('#olist-envios-postcode').on('input', function () {
+        var v = this.value.replace(/\D/g, '').slice(0, 8);
+        this.value = v.length > 5 ? v.slice(0, 5) + '-' + v.slice(5) : v;
+    });
+
+    $('#olist-envios-btn').on('click', function () {
+        var postcode = $('#olist-envios-postcode').val().replace(/\D/g, '');
+
+        if (postcode.length !== 8) {
+            $('#olist-envios-result').html('<p class="olist-envios-simulator__error">' + msgInvalid + '</p>');
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text(lblCalculando);
+
+        var formData = $('#product_addtocart_form').serialize();
+        formData += '&postcode=' + encodeURIComponent(postcode);
+
+        $.ajax({
+            url:  ajaxUrl,
+            type: 'POST',
+            data: formData,
+            success: function (html) {
+                $('#olist-envios-result').html(
+                    html.trim() ? html : '<p class="olist-envios-simulator__error">' + msgEmpty + '</p>'
+                );
+            },
+            error: function () {
+                $('#olist-envios-result').html('<p class="olist-envios-simulator__error">' + msgError + '</p>');
+            },
+            complete: function () {
+                $btn.prop('disabled', false).text(lblCalcular);
+            }
+        });
+    });
+});
+</script>

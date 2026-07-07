@@ -57,6 +57,13 @@
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
                     <can_be_empty>1</can_be_empty>
                 </field>
+
+                <field id="show_on_product_page" translate="label" type="select" sortOrder="9"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Simulador de frete na página do produto</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Exibe um simulador de frete por CEP na página de cada produto.</comment>
+                </field>
             </group>
         </section>
     </system>

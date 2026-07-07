@@ -24,7 +24,7 @@ if [ ! -f "$MAGENTO_ROOT/bin/magento" ]; then
         magento/project-community-edition "$MAGENTO_ROOT" 2.4.8
 fi
 
-if ! grep -q 'install_date' "$MAGENTO_ROOT/app/etc/env.php" 2>/dev/null; then
+if ! grep -qE "'install'\s*=>" "$MAGENTO_ROOT/app/etc/env.php" 2>/dev/null; then
     echo "[init] Installing Magento..."
     php -d memory_limit=-1 "$MAGENTO_ROOT/bin/magento" setup:install \
         --base-url=http://localhost \

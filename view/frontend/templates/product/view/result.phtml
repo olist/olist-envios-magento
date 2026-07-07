@@ -1,0 +1,33 @@
+<?php
+/** @var \Olist\Envios\Block\Product\ShippingResult $block */
+$rates = $block->getRates();
+if (empty($rates)) {
+    return;
+}
+?>
+<table class="olist-envios-simulator__table">
+    <thead>
+        <tr>
+            <th><?= $block->escapeHtml(__('Método')) ?></th>
+            <th><?= $block->escapeHtml(__('Valor')) ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($rates as $carrierRates): ?>
+            <?php foreach ($carrierRates as $rate): ?>
+                <?php if ($rate->getErrorMessage()): ?>
+                    <tr>
+                        <td colspan="2" class="olist-envios-simulator__error">
+                            <?= $block->escapeHtml($rate->getErrorMessage()) ?>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <tr>
+                        <td><?= $block->escapeHtml($rate->getMethodTitle()) ?></td>
+                        <td><?= $block->escapeHtml($block->formatPrice((float) $rate->getPrice())) ?></td>
+                    </tr>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        <?php endforeach; ?>
+    </tbody>
+</table>
