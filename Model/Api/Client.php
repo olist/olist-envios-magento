@@ -13,7 +13,7 @@ class Client
     private const CACHE_TAG   = 'olist_envios_quote';
     private const CACHE_TTL   = 300; // 5 minutes — mirrors the WooCommerce transient TTL
     private const API_TIMEOUT = 10;  // seconds
-    private const QUOTE_PATH  = '/v1/freights/channel-quote/magento/';
+    private const QUOTE_PATH  = '/v1/freights/magento';
 
     public function __construct(
         private readonly Curl            $httpClient,
