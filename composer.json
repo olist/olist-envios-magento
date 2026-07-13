@@ -1,5 +1,5 @@
 {
-    "name": "olist/module-envios",
+    "name": "olist/envios-magento2",
     "description": "Módulo oficial de fretes Envios da Olist para Magento 2",
     "type": "magento2-module",
     "version": "1.0.0",
