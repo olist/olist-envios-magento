@@ -10,9 +10,10 @@
                 <api_token></api_token>
                 <specificerrmsg>Erro ao calcular o frete. Tente novamente.</specificerrmsg>
                 <debug>0</debug>
-                <sallowspecific>0</sallowspecific>
+                <sallowspecific>1</sallowspecific>
+                <specificcountry>BR</specificcountry>
                 <model>Olist\Envios\Model\Carrier\EnviosOlist</model>
-                <show_on_product_page>0</show_on_product_page>
+                <show_on_product_page>1</show_on_product_page>
             </olist_envios>
         </carriers>
     </default>
