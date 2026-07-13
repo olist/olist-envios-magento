@@ -52,6 +52,11 @@ if ! grep -qE "'install'\s*=>" "$MAGENTO_ROOT/app/etc/env.php" 2>/dev/null; then
     php -d memory_limit=-1 "$MAGENTO_ROOT/bin/magento" setup:upgrade
     php "$MAGENTO_ROOT/bin/magento" deploy:mode:set developer
     php "$MAGENTO_ROOT/bin/magento" maintenance:disable
+
+    echo "[init] Configuring dynamic base URL..."
+    php "$MAGENTO_ROOT/bin/magento" config:set web/unsecure/base_url "{{base_url}}"
+    php "$MAGENTO_ROOT/bin/magento" config:set web/secure/base_url "{{base_url}}"
+
     php "$MAGENTO_ROOT/bin/magento" cache:flush
 fi
 
