@@ -16,10 +16,11 @@ Módulo oficial de fretes para Magento 2. Exibe as opções de frete do Envios d
 ## Instalação via Composer
 
 ```bash
-composer require olist/module-envios
+composer require olist/envios-magento2
 php bin/magento module:enable Olist_Envios
 php bin/magento setup:upgrade
-php bin/magento cache:flush
+php bin/magento setup:di:compile
+php bin/magento cache:clean
 ```
 
 ## Instalação manual
@@ -31,7 +32,8 @@ php bin/magento cache:flush
 ```bash
 php bin/magento module:enable Olist_Envios
 php bin/magento setup:upgrade
-php bin/magento cache:flush
+php bin/magento setup:di:compile
+php bin/magento cache:clean
 ```
 
 ---
@@ -151,11 +153,12 @@ Acesse em **http://localhost** e o painel admin em **http://localhost/admin** (u
 ```bash
 php bin/magento module:disable Olist_Envios
 php bin/magento setup:upgrade
-php bin/magento cache:flush
+php bin/magento setup:di:compile
+php bin/magento cache:clean
 ```
 
 Se instalado via Composer:
 
 ```bash
-composer remove olist/module-envios
+composer remove olist/envios-magento2
 ```
