@@ -165,7 +165,7 @@ class ClientTest extends TestCase
         $this->httpClient->expects($this->once())
             ->method('post')
             ->with(
-                'https://api.example.com/v1/freights/channel-quote/magento/?token=my-token',
+                'https://api.example.com/v1/freights/magento?token=my-token',
                 $this->anything()
             );
 

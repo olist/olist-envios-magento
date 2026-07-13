@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Olist\Envios\Test\Unit\Model\Carrier;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Quote\Model\Quote\Address\RateResult\Error;
 use Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory;
@@ -27,6 +28,7 @@ class EnviosOlistTest extends TestCase
     private MockObject&ResultFactory        $rateResultFactory;
     private MockObject&MethodFactory        $rateMethodFactory;
     private MockObject&Client               $apiClient;
+    private MockObject&EncryptorInterface   $encryptor;
     private MockObject&Result               $result;
     private MockObject&Error                $error;
 
@@ -38,8 +40,11 @@ class EnviosOlistTest extends TestCase
         $this->rateResultFactory = $this->createMock(ResultFactory::class);
         $this->rateMethodFactory = $this->createMock(MethodFactory::class);
         $this->apiClient        = $this->createMock(Client::class);
+        $this->encryptor        = $this->createMock(EncryptorInterface::class);
         $this->result           = $this->createMock(Result::class);
         $this->error            = $this->createMock(Error::class);
+
+        $this->encryptor->method('decrypt')->willReturnArgument(0);
 
         $this->rateResultFactory->method('create')->willReturn($this->result);
         $this->rateErrorFactory->method('create')->willReturn($this->error);
@@ -60,6 +65,7 @@ class EnviosOlistTest extends TestCase
                 $this->rateResultFactory,
                 $this->rateMethodFactory,
                 $this->apiClient,
+                $this->encryptor,
             ])
             ->onlyMethods(['getConfigFlag', 'getConfigData'])
             ->getMock();
