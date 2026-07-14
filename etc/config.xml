@@ -4,7 +4,7 @@
     <default>
         <carriers>
             <olist_envios>
-                <active>0</active>
+                <active>1</active>
                 <title>Envios da Olist</title>
                 <api_url>https://envios-api.olist.com</api_url>
                 <api_token></api_token>
